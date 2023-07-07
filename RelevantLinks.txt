@@ -1,0 +1,8 @@
+https://stackoverflow.com/questions/4762409/emgu-cv-camera-capture-in-wpf
+https://www.emgu.com/wiki/index.php?search=Bitmap&title=Special%3ASearch&go=Go
+https://stackoverflow.com/questions/10651686/convert-the-image-in-a-picturebox-into-a-bitmap
+https://stackoverflow.com/questions/58349295/converting-emgu-cv-imageemgu-cv-structure-bgr-byte-to-system-drawing-image
+https://learn.microsoft.com/en-us/dotnet/api/system.drawing.imaging.imageformat?view=windowsdesktop-7.0
+
+
+
