@@ -5,10 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InspectorV1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="816.361" Width="983.77">
     <Grid>
-        <Image x:Name="outputFrame" HorizontalAlignment="Left" Height="322" Margin="74,76,0,0" VerticalAlignment="Top" Width="401"/>
-        <Button x:Name="btnStart" Content="start" HorizontalAlignment="Left" Margin="26,12,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
+        <Image x:Name="outputFrame" HorizontalAlignment="Left" Height="322" Margin="43,52,0,0" VerticalAlignment="Top" Width="401"/>
+        <Button x:Name="btnStart" Content="start" HorizontalAlignment="Left" Margin="39,14,0,0" VerticalAlignment="Top" Width="75" Click="btnStart_Click"/>
+        <Button x:Name="btnStop" Content="stop" HorizontalAlignment="Left" Margin="127,14,0,0" VerticalAlignment="Top" Width="75" Click="btnStop_Click"/>
+        <Image x:Name="processedOutput" HorizontalAlignment="Left" Height="322" Margin="513,54,0,0" VerticalAlignment="Top" Width="401"/>
+        <Image x:Name="processedOutput2" HorizontalAlignment="Left" Height="322" Margin="39,406,0,0" VerticalAlignment="Top" Width="401"/>
 
     </Grid>
 </Window>

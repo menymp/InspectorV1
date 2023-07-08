@@ -18,6 +18,7 @@ using Emgu.CV;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
 using System.Drawing.Imaging;
+using System.Threading; // For Dispatcher.
 
 namespace InspectorV1
 {
@@ -27,7 +28,8 @@ namespace InspectorV1
     public partial class MainWindow : Window
     {
         VideoCapture capture;
-        Timer timer;
+        System.Timers.Timer timer;
+        bool flagStop = true;
 
         public MainWindow()
         {
@@ -49,24 +51,130 @@ namespace InspectorV1
             //copy the bitmap to a memorystream
             //display the image on the ui
             // outputFrame.Source = BitmapFrame.Create(bmp);
-            using (Image<Bgr, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>())
+            //create a timer that refreshes the webcam feed
+            flagStop = false;
+            timer = new System.Timers.Timer()
             {
-                if (frame != null)
+                Interval = 1000 / cameraFps,
+                Enabled = true
+            };
+            timer.Elapsed += new ElapsedEventHandler(timer_Tick);
+        }
+        private SynchronizationContext _context = SynchronizationContext.Current;
+
+        private UMat cannyExample(Image<Gray, byte> input)
+        {
+            var cannyImage = new UMat();
+            CvInvoke.Canny(input, cannyImage, 150, 50);
+            return cannyImage;
+        }
+
+        private UMat hsvTresholdExample(Image<Hsv, byte> hsv)
+        {
+            // 2. Obtain the 3 channels (hue, saturation and value) that compose the HSV image
+            return hsv.ToUMat();
+        }
+
+        private async void timer_Tick(object sender, ElapsedEventArgs e)
+        {
+
+            if (flagStop == true)
+            {
+                capture.Dispose();
+            }
+            else
+            {
+                using (Image<Bgr, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>())
                 {
-                    using (var stream = new MemoryStream())
+                    if (frame != null)
                     {
-                        // My way to display frame 
-                        frame.Bitmap.Save(stream, ImageFormat.Bmp);
+                        this._context.Send(o =>
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                // My way to display frame 
+                                frame.Bitmap.Save(stream, ImageFormat.Bmp);
 
-                        BitmapImage bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.StreamSource = new MemoryStream(stream.ToArray());
-                        bitmap.EndInit();
+                                BitmapImage bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.StreamSource = new MemoryStream(stream.ToArray());
+                                bitmap.EndInit();
 
-                        outputFrame.Source = bitmap;
-                    };
+                                outputFrame.Source = bitmap;
+                            };
+                        },
+                        null);
+                    }
+                }
+
+                using (Image<Gray, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>().Convert<Gray, byte>())
+                {
+                    if (frame != null)
+                    {
+                        this._context.Send(o =>
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                // My way to display frame 
+                                var outFrame = cannyExample(frame);
+                                outFrame.Bitmap.Save(stream, ImageFormat.Bmp);
+
+                                BitmapImage bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.StreamSource = new MemoryStream(stream.ToArray());
+                                bitmap.EndInit();
+
+                                processedOutput.Source = bitmap;
+                            };
+                        },
+                        null);
+                    }
+                }
+                using (Image<Hsv, byte> hsv = capture.QueryFrame().ToImage<Bgr, Byte>().Convert<Hsv, byte>())
+                {
+                    if (hsv != null)
+                    {
+                        this._context.Send(o =>
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                // My way to display frame 
+                                //var outFrame = cannyExample(hsv);
+                                hsv.Bitmap.Save(stream, ImageFormat.Bmp);
+
+                                BitmapImage bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.StreamSource = new MemoryStream(stream.ToArray());
+                                bitmap.EndInit();
+
+                                processedOutput2.Source = bitmap;
+                            };
+                        },
+                        null);
+                    }
                 }
             }
+        }
+        //using (var stream = new MemoryStream())
+        //{
+        //    // My way to display frame 
+
+        //    var CannyFrame = cannyExample(capture.QueryFrame());
+
+        //    CannyFrame.Bitmap.Save(stream, ImageFormat.Bmp);
+
+        //    BitmapImage bitmap = new BitmapImage();
+        //    bitmap.BeginInit();
+        //    bitmap.StreamSource = new MemoryStream(stream.ToArray());
+        //    bitmap.EndInit();
+
+        //    processedOutput.Source = bitmap;
+
+        //};
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            timer.Enabled = false;
+            
         }
     }
 }
