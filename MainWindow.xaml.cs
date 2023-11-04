@@ -27,7 +27,7 @@ namespace InspectorV1
     /// </summary>
     public partial class MainWindow : Window
     {
-        VideoCapture capture;
+        Capture capture;
         System.Timers.Timer timer;
         bool flagStop = true;
 
@@ -40,7 +40,9 @@ namespace InspectorV1
         {
             int cameraFps = 30;
             //init the camera
-            capture = new VideoCapture();
+            /*capture = new VideoCapture();*/
+            capture = new Capture(0);
+
 
             //set the captured frame width and height (default 640x480)
             //capture.Set(CapProp.FrameWidth, 1024);
@@ -84,7 +86,7 @@ namespace InspectorV1
             }
             else
             {
-                using (Image<Bgr, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>())
+                /*using (Image<Bgr, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>())
                 {
                     if (frame != null)
                     {
@@ -105,8 +107,13 @@ namespace InspectorV1
                         },
                         null);
                     }
-                }
-
+                }*/
+                this._context.Send(o => {
+                    BitmapImage frame = capture.read();
+                    if (frame == null) return;
+                    outputFrame.Source = frame; 
+                }, null);
+                /*
                 using (Image<Gray, byte> frame = capture.QueryFrame().ToImage<Bgr, Byte>().Convert<Gray, byte>())
                 {
                     if (frame != null)
@@ -153,6 +160,7 @@ namespace InspectorV1
                         null);
                     }
                 }
+                */
             }
         }
         //using (var stream = new MemoryStream())
